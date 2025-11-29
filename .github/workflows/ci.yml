@@ -1,0 +1,27 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-test:
+    run-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v6
+     - name: install arduino cli
+       run: curl -fsSL https://github.com/arduino/arduino-cli/master/install.sh --output-dir /build/ | sh
+     - name: install Arduboy Core and Libraries
+       run: |
+        arduino-cli core install arduboy:avr
+        arduino-cli lib install "Arduboy2"
+     - name: compile Arduboy Sketch
+       uses: arduino/compile-sketches@v1
+       with:
+        fqbn: arduboy:avr:arduboy
+        sketch-paths: |
+          ./arduboy_game/arduboy_game.ino
+     - name: deploy PR Preview
+       user: rossjrw/pr-preview-action@v1
+       with:
+        source-dir: ./build/      
