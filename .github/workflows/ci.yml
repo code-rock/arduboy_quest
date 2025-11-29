@@ -1,0 +1,26 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches: [ master, main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v6
+     - name: Setup Arduino CLI
+       uses: arduino/setup-arduino-cli@v2
+     - name: compile Arduboy Sketch
+       uses: arduino/compile-sketches@v1
+       with:
+        fqbn: arduino:avr:leonardo
+        libraries: |
+          - name: Arduboy2
+        sketch-paths: |
+          ./arduboy_game/arduboy_game.ino
+        cli-compile-flags: |
+          - --export-binaries
+     - uses: actions/upload-artifact@v4
+       with:
+        path: ./arduboy_game/build/arduino.avr.leonardo/arduboy_game.ino.hex
